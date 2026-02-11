@@ -1,4 +1,3 @@
-
 # 🛠️ Log Analyzer Agent
 
 **An AI-powered diagnostic tool that transforms messy application logs into actionable intelligence.**
@@ -13,16 +12,17 @@ The Log Analyzer Agent leverages **FastAPI**, **LangChain**, and **OpenAI's GPT-
 * **🤖 Intelligent Analysis:** Context-aware log parsing using GPT-4o-mini.
 * **🔍 Root Cause Identification:** Moves beyond error messages to explain *why* a failure occurred.
 * **💡 Fix Recommendations:** Provides code-level suggestions and practical next steps.
-* **🎯 Pattern Detection:** Recognizes recurring issues and suspicious behavior across large datasets.
+* **🐳 Containerized Deployment:** Fully Dockerized with Docker Compose support.
+* **⚡ High-Speed Builds:** Uses **Astral `uv**` for lightning-fast dependency installation.
 
 ---
 
 ## 🏗️ System Architecture
 
-The tool follows a modern RAG-inspired (Retrieval-Augmented Generation) pipeline for processing large text files:
+The tool follows a modern pipeline for processing large text files:
 
 1. **Backend:** FastAPI server orchestrating the LangChain logic.
-2. **Processing:** Recursive text splitting ( character chunks with  character overlap) to maintain context.
+2. **Processing:** Recursive text splitting (**2000** character chunks with **200** character overlap) to maintain context.
 3. **LLM Layer:** OpenAI API processing via LangChain chains.
 4. **Frontend:** Minimalist HTML5/JavaScript UI for real-time interaction.
 
@@ -32,34 +32,30 @@ The tool follows a modern RAG-inspired (Retrieval-Augmented Generation) pipeline
 
 ### Prerequisites
 
-* Python 3.8+
+* Python 3.8+ or **Docker**
 * OpenAI API Key
 
-### 1. Clone & Initialize
+### Option A: Local Setup
 
 ```bash
 cd loganalyzer
 python -m venv venv
-
-# Activate Environment
 source venv/bin/activate  # Linux/Mac
 # venv\Scripts\activate   # Windows
 
-```
-
-### 2. Install Dependencies
-
-```bash
 pip install -r requirements.txt
 
 ```
 
-### 3. Configuration
+### Option B: Docker Setup (Recommended)
 
-Create a `.env` file in the root directory:
+This project includes a **Dockerfile** optimized with `uv` and a **docker-compose.yml** for secret management.
 
-```env
-OPENAI_API_KEY=sk-proj-your_actual_key_here
+1. Create a `.env` file and add your key: `OPENAI_API_KEY=sk-proj-...`
+2. Build and run:
+
+```bash
+docker compose up --build -d
 
 ```
 
@@ -67,7 +63,7 @@ OPENAI_API_KEY=sk-proj-your_actual_key_here
 
 ## 🚦 Running the App
 
-Start the server using the entry point:
+If running locally (Option A), start the server:
 
 ```bash
 python app.py
