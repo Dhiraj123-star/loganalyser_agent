@@ -1,7 +1,5 @@
 from fastapi import FastAPI, UploadFile, File
-from fastapi.responses import JSONResponse, HTMLResponse
-from fastapi.staticfiles import StaticFiles
-from langchain_core.prompts import PromptTemplate
+from fastapi.responses import JSONResponse, HTMLResponse, StreamingResponse
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 from langchain_openai import ChatOpenAI
 from dotenv import load_dotenv
@@ -32,7 +30,8 @@ Respond in clear paragraphs. Avoid jargon where possible.
 # Initialize LLM
 llm = ChatOpenAI(
     temperature=0.2,
-    model="gpt-4o-mini"
+    model="gpt-4o-mini",
+    streaming=True  # Enabled streaming at the model level
 )
 
 
@@ -45,19 +44,21 @@ def split_logs(log_text: str):
     return splitter.split_text(log_text)
 
 
-def analyze_logs(log_text: str):
-    """Analyze logs by splitting and processing each chunk"""
+async def analyze_logs_stream(log_text: str):
+    """Generator that analyzes logs and yields results chunk by chunk"""
     chunks = split_logs(log_text)
-    combined_analysis = []
 
-    for chunk in chunks:
-        # Format the prompt with the chunk data
+    for i, chunk in enumerate(chunks):
         formatted_prompt = log_analysis_prompt_text.format(log_data=chunk)
-        # Invoke the LLM
-        result = llm.invoke(formatted_prompt)
-        combined_analysis.append(result.content)
-
-    return "\n\n".join(combined_analysis)
+        
+        # Stream the response from OpenAI for each chunk
+        async for chunk_response in llm.astream(formatted_prompt):
+            content = chunk_response.content
+            if content:
+                yield content
+        
+        # Add spacing between chunk analyses
+        yield "\n\n---\n\n"
 
 
 @app.get("/", response_class=HTMLResponse)
@@ -69,7 +70,7 @@ async def root():
 
 @app.post("/analyze")
 async def analyze_log_file(file: UploadFile = File(...)):
-    """Analyze uploaded log file"""
+    """Analyze uploaded log file with streaming response"""
     if not file.filename.endswith(".txt"):
         return JSONResponse(
             status_code=400,
@@ -86,9 +87,10 @@ async def analyze_log_file(file: UploadFile = File(...)):
                 content={"error": "Log file is empty"}
             )
 
-        insights = analyze_logs(log_text)
-
-        return {"analysis": insights}
+        return StreamingResponse(
+            analyze_logs_stream(log_text),
+            media_type="text/plain"
+        )
     
     except Exception as e:
         return JSONResponse(
