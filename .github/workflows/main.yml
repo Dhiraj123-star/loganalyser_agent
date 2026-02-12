@@ -27,14 +27,9 @@ jobs:
         env:
           PYTHONPATH: .
         run: |
-          # 1. Install your app's actual requirements
-          uv pip install --system -r requirements.txt
-          
-          # 2. Install the testing tools
-          uv pip install --system pytest httpx pytest-asyncio
-          
-          # 3. Run pytest
-          pytest tests/
+          # Create an environment and install everything (app + test tools)
+          # 'uv run' will handle the virtualenv creation automatically
+          uv run --with pytest --with httpx --with pytest-asyncio pytest tests/
 
   build-and-push:
     needs: quality-check
