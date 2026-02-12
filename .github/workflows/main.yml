@@ -23,9 +23,18 @@ jobs:
         run: |
           uvx flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
 
+      - name: Run Tests
+        env:
+          PYTHONPATH: .
+        # This uses uvx to pull in pytest and httpx on the fly 
+        # so we don't need to mess with system environments.
+        run: |
+          uvx --with httpx --with pytest --with pytest-asyncio pytest tests/
+
   build-and-push:
     needs: quality-check
-    if: github.event_name == 'push'
+    # Only build the Docker image if quality-check passes AND it's a push to main
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Code
@@ -46,5 +55,6 @@ jobs:
           context: .
           push: true
           tags: ${{ secrets.DOCKERHUB_USERNAME }}/log-analyzer:latest
+          # These lines speed up your future builds significantly
           cache-from: type=gha
           cache-to: type=gha,mode=max
