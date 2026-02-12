@@ -26,15 +26,10 @@ jobs:
       - name: Run Tests
         env:
           PYTHONPATH: .
+          OPENAI_API_KEY: "sk-mock-key-for-testing"  # Add this line here
         run: |
-          # 1. Create a virtual environment in the current directory
           uv venv
-          
-          # 2. Install requirements and test tools into that environment
-          # We don't use --system here, so it installs into the .venv we just made
           uv pip install -r requirements.txt pytest httpx pytest-asyncio
-          
-          # 3. Run pytest using the virtual environment's python
           source .venv/bin/activate
           python -m pytest tests/
 
