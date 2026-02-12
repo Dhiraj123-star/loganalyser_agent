@@ -9,7 +9,8 @@ The Log Analyzer Agent leverages **FastAPI**, **LangChain**, and **OpenAI's GPT-
 ## 🚀 Key Features
 
 * **📤 Effortless Ingestion:** Simple drag-and-drop interface for `.txt` log files.
-* **🤖 Intelligent Analysis:** Context-aware log parsing using GPT-4o-mini.
+* **🌊 Real-time Streaming:** Watch the AI analyze your logs word-by-word with instant feedback.
+* **📝 Markdown Formatting:** Beautifully rendered reports with code snippets, bold text, and structured lists for better readability.
 * **🔍 Root Cause Identification:** Moves beyond error messages to explain *why* a failure occurred.
 * **💡 Fix Recommendations:** Provides code-level suggestions and practical next steps.
 * **🐳 Containerized Deployment:** Fully Dockerized with Docker Compose support.
@@ -21,10 +22,10 @@ The Log Analyzer Agent leverages **FastAPI**, **LangChain**, and **OpenAI's GPT-
 
 The tool follows a modern pipeline for processing large text files:
 
-1. **Backend:** FastAPI server orchestrating the LangChain logic.
+1. **Backend:** FastAPI server orchestrating the LangChain logic using `StreamingResponse`.
 2. **Processing:** Recursive text splitting (**2000** character chunks with **200** character overlap) to maintain context.
-3. **LLM Layer:** OpenAI API processing via LangChain chains.
-4. **Frontend:** Minimalist HTML5/JavaScript UI for real-time interaction.
+3. **LLM Layer:** OpenAI API processing via LangChain `astream` for token-by-token generation.
+4. **Frontend:** Vanilla JS with `ReadableStream` API and `Marked.js` for real-time Markdown rendering.
 
 ---
 
@@ -70,13 +71,6 @@ python app.py
 
 ```
 
-*Alternatively, run via Uvicorn:*
-
-```bash
-uvicorn app:app --reload --host 0.0.0.0 --port 8000
-
-```
-
 **Access the UI at:** `http://localhost:8000`
 
 ---
@@ -86,7 +80,7 @@ uvicorn app:app --reload --host 0.0.0.0 --port 8000
 | Endpoint | Method | Description |
 | --- | --- | --- |
 | `/` | `GET` | Serves the web-based user interface. |
-| `/analyze` | `POST` | Accepts `multipart/form-data` (file) and returns JSON analysis. |
+| `/analyze` | `POST` | Accepts `multipart/form-data` (file) and returns a **Text Stream**. |
 | `/health` | `GET` | Returns system status and API key validation. |
 
 ---
@@ -96,7 +90,9 @@ uvicorn app:app --reload --host 0.0.0.0 --port 8000
 1. Navigate to the web dashboard.
 2. Upload a log file (e.g., use the provided `sample_log.txt`).
 3. Click **Analyze Logs**.
-4. Review the **Analysis Report**, which breaks down:
+4. Watch the **Real-time Report** generate, which breaks down:
 * **Identified Errors:** High-priority failures found in the log.
 * **Root Cause:** The technical "why" behind the errors.
 * **Suggested Fixes:** Specific steps to resolve the identified issues.
+
+---
