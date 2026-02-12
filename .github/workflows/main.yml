@@ -26,10 +26,15 @@ jobs:
       - name: Run Tests
         env:
           PYTHONPATH: .
-        # This uses uvx to pull in pytest and httpx on the fly 
-        # so we don't need to mess with system environments.
         run: |
-          uvx --with httpx --with pytest --with pytest-asyncio pytest tests/
+          # 1. Install your app's actual requirements
+          uv pip install --system -r requirements.txt
+          
+          # 2. Install the testing tools
+          uv pip install --system pytest httpx pytest-asyncio
+          
+          # 3. Run pytest
+          pytest tests/
 
   build-and-push:
     needs: quality-check
