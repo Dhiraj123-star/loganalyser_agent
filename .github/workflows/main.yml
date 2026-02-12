@@ -27,12 +27,15 @@ jobs:
         env:
           PYTHONPATH: .
         run: |
-          # 1. Force install everything into the environment
-          # Using --break-system-packages is safe in a throwaway CI runner 
-          # to get around the "externally managed" restriction.
-          uv pip install --system --break-system-packages -r requirements.txt pytest httpx pytest-asyncio
+          # 1. Create a virtual environment in the current directory
+          uv venv
           
-          # 2. Run pytest using the 'python -m' module wrapper
+          # 2. Install requirements and test tools into that environment
+          # We don't use --system here, so it installs into the .venv we just made
+          uv pip install -r requirements.txt pytest httpx pytest-asyncio
+          
+          # 3. Run pytest using the virtual environment's python
+          source .venv/bin/activate
           python -m pytest tests/
 
   build-and-push:
