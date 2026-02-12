@@ -27,9 +27,13 @@ jobs:
         env:
           PYTHONPATH: .
         run: |
-          # Create an environment and install everything (app + test tools)
-          # 'uv run' will handle the virtualenv creation automatically
-          uv run --with pytest --with httpx --with pytest-asyncio pytest tests/
+          # 1. Force install everything into the environment
+          # Using --break-system-packages is safe in a throwaway CI runner 
+          # to get around the "externally managed" restriction.
+          uv pip install --system --break-system-packages -r requirements.txt pytest httpx pytest-asyncio
+          
+          # 2. Run pytest using the 'python -m' module wrapper
+          python -m pytest tests/
 
   build-and-push:
     needs: quality-check
@@ -55,6 +59,6 @@ jobs:
           context: .
           push: true
           tags: ${{ secrets.DOCKERHUB_USERNAME }}/log-analyzer:latest
-          # These lines speed up your future builds significantly
+          # Use GitHub Actions cache to speed up subsequent builds
           cache-from: type=gha
           cache-to: type=gha,mode=max
