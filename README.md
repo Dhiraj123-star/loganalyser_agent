@@ -1,3 +1,4 @@
+
 # 🛠️ Log Analyzer Agent
 
 **An AI-powered diagnostic tool that transforms messy application logs into actionable intelligence.**
@@ -15,6 +16,9 @@ The Log Analyzer Agent leverages **FastAPI**, **LangChain**, and **OpenAI's GPT-
 * **💡 Fix Recommendations:** Provides code-level suggestions and practical next steps.
 * **🐳 Containerized Deployment:** Fully Dockerized with Docker Compose support.
 * **⚡ High-Speed Builds:** Uses **Astral `uv**` for lightning-fast dependency installation.
+* **🤖 Automated Quality Assurance:** Integrated **CI/CD pipeline** via GitHub Actions that automatically lints code and runs test suites on every push.
+* **🧪 Robust Integration Testing:** Custom test suite using `pytest` and `httpx` to verify endpoint health and API reliability without incurring AI costs.
+* **📦 Automated Image Delivery:** Seamlessly builds and pushes verified Docker images to **Docker Hub** upon successful testing.
 
 ---
 
@@ -26,6 +30,7 @@ The tool follows a modern pipeline for processing large text files:
 2. **Processing:** Recursive text splitting (**2000** character chunks with **200** character overlap) to maintain context.
 3. **LLM Layer:** OpenAI API processing via LangChain `astream` for token-by-token generation.
 4. **Frontend:** Vanilla JS with `ReadableStream` API and `Marked.js` for real-time Markdown rendering.
+5. **DevOps:** GitHub Actions pipeline utilizing `uv` virtual environments for secure, isolated testing.
 
 ---
 
@@ -40,11 +45,12 @@ The tool follows a modern pipeline for processing large text files:
 
 ```bash
 cd loganalyzer
-python -m venv venv
-source venv/bin/activate  # Linux/Mac
-# venv\Scripts\activate   # Windows
+# Using uv for 10x faster setup
+uv venv
+source .venv/bin/activate  # Linux/Mac
+# .venv\Scripts\activate   # Windows
 
-pip install -r requirements.txt
+uv pip install -r requirements.txt
 
 ```
 
@@ -75,7 +81,19 @@ python app.py
 
 ---
 
-## 🧪 API Reference
+## 🧪 Testing
+
+The project includes an automated test suite to ensure the API and UI plumbing are working correctly.
+
+```bash
+# Run tests locally via Docker
+docker compose run --rm -e PYTHONPATH=. -v "$(pwd)/tests:/app/tests" log-analyzer uv run --with pytest --with httpx pytest tests/
+
+```
+
+---
+
+## 🚦 API Reference
 
 | Endpoint | Method | Description |
 | --- | --- | --- |
@@ -94,5 +112,7 @@ python app.py
 * **Identified Errors:** High-priority failures found in the log.
 * **Root Cause:** The technical "why" behind the errors.
 * **Suggested Fixes:** Specific steps to resolve the identified issues.
+
+
 
 ---
